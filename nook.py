@@ -17,6 +17,50 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
+# def get_fishes(cur, conn):
+#     params = {"format": "json"}
+#     response = requests.get(f"https://api.nookipedia.com/nh/fish", params=params, headers={"Accept-Version": "1.0.0", "X-API-KEY":"55812024-1e72-4393-989e-9669fe7e2c0f"})
+
+#     fish_lst = response.json()
+
+#     name = []
+#     nook_price = []
+#     cj_price = []
+
+#     for d in fish_lst:
+#         name.append('name')
+#         nook_price.append(d['sell_nook'])
+#         cj_price.append(d['sell_cj'])
+    
+#     cur.execute('CREATE TABLE IF NOT EXISTS Fish (id INTEGER PRIMARY KEY, name TEXT, nook INTEGER, cj INTEGER)')
+#     conn.commit()
+
+#     for i in range(len(name)):
+#         cur.execute('INSERT INTO Fish (id, name, nook, cj) VALUES (?, ?, ?, ?)', (i, name[i], nook_price[i], cj_price[i]))
+#     conn.commit()
+
+
+
+
+# def recipes(cur, conn):
+#     params = {"format": "json"}
+#     response = requests.get(f"https://api.nookipedia.com/nh/recipes", params=params, headers={"Accept-Version": "1.0.0", "X-API-KEY":"55812024-1e72-4393-989e-9669fe7e2c0f"})
+#     recipes_lst = response.json()
+
+#     #print(recipes_lst[0:100])
+#     # {'url': 'https://nookipedia.com/wiki/Item:Acorn_pochette_(New_Horizons)', 'name': 'acorn pochette', 'image_url': 'https://dodo.ac/np/images/d/de/Acorn_Pochette_NH_DIY_Icon.png', 'serial_id': 2982, 'sell': 200, 'recipes_to_unlock': 0, 'materials': [{'name': 'acorn', 'count': 6}], 'availability': [{'from': 'Balloons', 'note': 'fall'}], 'buy': []}
+
+#     cur.execute('CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY, name TEXT UNIQUE, material TEXT, amount INTEGER)')
+#     conn.commit()
+
+#     for d in recipes_lst:
+#         name = d['name']
+#         materials = d['materials'][0]['name']
+#         amount = d['materials'][0]['count']
+
+#         cur.execute('INSERT INTO Recipes (name, material, amount) VALUES (?, ?, ?)', (name, materials, amount))
+#     conn.commit()
+
 def make_style_table(cur, conn):
     params = {"format": "json"}
     response = requests.get(f"https://api.nookipedia.com/nh/clothing", params=params, headers={"Accept-Version": "1.0.0", "X-API-KEY":"55812024-1e72-4393-989e-9669fe7e2c0f"})
@@ -28,6 +72,7 @@ def make_style_table(cur, conn):
         for style_type in style['styles']:
             if style_type not in style_list:
                 s = style_list.append(style_type)
+
             #print(g)
             
     cur.execute("CREATE TABLE IF NOT EXISTS Style (id INTEGER PRIMARY KEY, style TEXT UNIQUE)")
@@ -57,20 +102,27 @@ def clothes(cur, conn):
             price = clothes_lst[j]['sell']
             cur.execute("INSERT OR IGNORE INTO Clothes (name, style_id, price) VALUES(?, ?, ?)", (name, style_id, price))
     conn.commit()
+            
 
-def normal_avg(cur, conn):
-    cur.execute('SELECT name, price FROM Clothes WHERE Clothes.style_id = 0')
-    total = 0
-    count = 0
-    for i in cur:
-        print(i[1])
-        total += i[1]
-        print(total)
-        count += 1
-    avg = total/count
-    print(avg)
+
+    # for d in clothes_lst[clothes_count:min(clothes_count+25,len(clothes_lst))]:
+    #     name = d['name']
+    #     try:
+    #         style = d['styles'][0]
+    #     except:
+    #         style = "Normal"
+    #     price = d['sell']
+
+    #     cur.execute("INSERT OR IGNORE INTO Clothes (name, style, price) VALUES(?, ?, ?)", (name, style, price))
     conn.commit()
-    return avg
+
+####################
+#### TEST CASES ####
+####################
+
+# class TestHomework6(unittest.TestCase):
+#     def setUp(self):
+#         pass
 
 def main():
     cur, conn = setUpDatabase('island.db')
@@ -82,12 +134,13 @@ def main():
         stuff.append(get_info[x])'''
    # data = get_info()
     make_style_table(cur,conn)
-    clothes(cur, conn)
-    normal_avg(cur, conn)
+    clothes( cur, conn)
 
     conn.close()
     
  
 if __name__ == "__main__":
     main()
+    # You can comment this out to test with just the main function,
+    # But be sure to uncomment it and test that you pass the unittests before you submit!
     unittest.main(verbosity=2)
